@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Case Simulator</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#1a1a2e;color:#fff;min-height:100vh}
+.container{max-width:400px;margin:0 auto;padding:15px}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#fff;font-size:24px;margin-bottom:5px}
+.header p{color:#888;font-size:14px}
+.case-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px}
+.case-item{background:linear-gradient(135deg,#2d2d44,#1f1f35);border-radius:12px;padding:15px;text-align:center;cursor:pointer;border:2px solid #393957;transition:all 0.3s}
+.case-item:hover{transform:translateY(-5px);border-color:#0088cc}
+.case-icon{font-size:32px;margin-bottom:8px}
+.case-name{font-size:14px;font-weight:bold;margin-bottom:5px}
+.case-price{font-size:12px;color:#0088cc}
+.case-items{font-size:11px;color:#888}
+.open-animation{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:1000}
+.items-scroll{width:100%;height:200px;overflow:hidden;position:relative;background:#2d2d44;border-radius:10px}
+.item-track{display:flex;animation:scroll 3s ease-in-out;position:absolute;left:0;top:0}
+.item{min-width:80px;height:80px;margin:10px;background:linear-gradient(135deg,#393957,#2d2d44);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #0088cc}
+.result{text-align:center;margin-top:20px;display:none}
+.result-item{font-size:32px;margin-bottom:10px}
+.result-name{font-size:18px;color:#0088cc;font-weight:bold}
+.result-rarity{font-size:14px;margin-top:5px}
+.open-again{background:#0088cc;color:#fff;border:none;padding:12px 24px;border-radius:25px;cursor:pointer;margin-top:15px;font-weight:bold}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-1000px)}}
+</style>
+</head>
+<body>
+<div class=container>
+<div class=header>
+<h1>🎮 Case Simulator</h1>
+<p>Открывай кейсы и получай крутые предметы!</p>
+</div>
+
+<div class=case-grid>
+<div class=case-item onclick=openCase(0)>
+<div class=case-icon>🔫</div>
+<div class=case-name>Weapon Case</div>
+<div class=case-price>💰 Бесплатно</div>
+<div class=case-items>10 предметов</div>
+</div>
+
+<div class=case-item onclick=openCase(1)>
+<div class=case-icon>🎒</div>
+<div class=case-name>Starter Pack</div>
+<div class=case-price>💰 Бесплатно</div>
+<div class=case-items>8 предметов</div>
+</div>
+
+<div class=case-item onclick=openCase(2)>
+<div class=case-icon>💎</div>
+<div class=case-name>Premium Case</div>
+<div class=case-price>💰 Бесплатно</div>
+<div class=case-items>12 предметов</div>
+</div>
+
+<div class=case-item onclick=openCase(3)>
+<div class=case-icon>🎨</div>
+<div class=case-name>Skin Case</div>
+<div class=case-price>💰 Бесплатно</div>
+<div class=case-items>15 предметов</div>
+</div>
+</div>
+</div>
+
+<div class=open-animation id=openAnimation>
+<div style=text-align:center>
+<div class=items-scroll>
+<div class=item-track id=itemTrack></div>
+</div>
+<div class=result id=result>
+<div class=result-item id=resultIcon>🎁</div>
+<div class=result-name id=resultName>Предмет</div>
+<div class=result-rarity id=resultRarity>Обычный</div>
+<button class=open-again onclick=closeAnimation()>Открыть ещё</button>
+</div>
+</div>
+</div>
+
+<script>
+const cases=[
+{name:"Weapon Case",items:["🔫 AK-47","🔫 M4A4","🔫 AWP","🔫 Desert Eagle","🔫 Glock-18","🔫 P90","🔫 USP-S","🔫 Knife","🎯 Scope","🔧 Tool"]},
+{name:"Starter Pack",items:["🎒 Backpack","🥤 Potion","⚡ Energy","🛡️ Shield","💊 Health","🔑 Key","💰 Coin","⭐ Star"]},
+{name:"Premium Case",items:["💎 Diamond","👑 Crown","🏆 Trophy","⭐ Gold Star","🔮 Crystal","🎭 Mask","🐉 Dragon","🌙 Moon","☀️ Sun","♠️ Ace","♥️ Heart","♦️ Diamond"]},
+{name:"Skin Case",items:["🎨 Red Skin","🎨 Blue Skin","🎨 Green Skin","🎨 Gold Skin","🎨 Purple Skin","🎨 Black Skin","🎨 White Skin","🎨 Rainbow","🎨 Neon","🎨 Cyber","🎨 Galaxy","🎨 Fire","🎨 Ice","🎨 Nature","🎨 Metal"]}
+]
+
+const rarities=["Обычный","Необычный","Редкий","Эпический","Легендарный","Мифический"]
+
+function openCase(caseIndex){
+const caseData=cases[caseIndex]
+const itemTrack=document.getElementById("itemTrack")
+itemTrack.innerHTML=""
+for(let i=0;i<50;i++){
+const item=document.createElement("div")
+item.className="item"
+const randomItem=caseData.items[Math.floor(Math.random()*caseData.items.length)]
+item.textContent=randomItem
+itemTrack.appendChild(item)
+}
+const openAnimation=document.getElementById("openAnimation")
+openAnimation.style.display="flex"
+setTimeout(()=>{
+showResult(caseData)
+},3000)
+}
+
+function showResult(caseData){
+const result=document.getElementById("result")
+const resultIcon=document.getElementById("resultIcon")
+const resultName=document.getElementById("resultName")
+const resultRarity=document.getElementById("resultRarity")
+const randomItem=caseData.items[Math.floor(Math.random()*caseData.items.length)]
+const randomRarity=rarities[Math.floor(Math.random()*rarities.length)]
+resultIcon.textContent=randomItem
+resultName.textContent=randomItem
+resultRarity.textContent=randomRarity
+resultRarity.style.color=getRarityColor(randomRarity)
+result.style.display="block"
+}
+
+function getRarityColor(rarity){
+switch(rarity){
+case"Обычный":return"#808080"
+case"Необычный":return"#00ff00"
+case"Редкий":return"#0070dd"
+case"Эпический":return"#a335ee"
+case"Легендарный":return"#ff8000"
+case"Мифический":return"#e5cc80"
+default:return"#ffffff"
+}
+}
+
+function closeAnimation(){
+document.getElementById("openAnimation").style.display="none"
+document.getElementById("result").style.display="none"
+}
+</script>
+</body>
+</html>
