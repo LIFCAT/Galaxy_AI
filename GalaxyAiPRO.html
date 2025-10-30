@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Galaxy AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #000000; color: white; min-height: 100vh; position: relative; }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+        .star { position: absolute; background: white; border-radius: 50%; }
+        .container { max-width: 420px; margin: 0 auto; padding: 15px; height: 100vh; display: flex; flex-direction: column; }
+        .menu-button { position: absolute; top: 15px; right: 15px; background: rgba(100, 100, 100, 0.8); color: white; border: none; border-radius: 8px; padding: 8px 10px; cursor: pointer; z-index: 1000; }
+        .menu-panel { position: absolute; top: 50px; right: 15px; background: rgba(60, 60, 60, 0.95); border-radius: 12px; padding: 15px; width: 200px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.2); }
+        .menu-option { background: rgba(80, 80, 80, 0.7); color: white; border: none; border-radius: 8px; padding: 10px; margin: 5px 0; cursor: pointer; width: 100%; text-align: left; }
+        .menu-option.active { background: rgba(0, 136, 204, 0.7); border: 1px solid #0088cc; }
+        .api-input { width: 100%; padding: 8px; margin: 5px 0; background: rgba(40, 40, 40, 0.8); color: white; border: 1px solid #555; border-radius: 6px; font-size: 12px; }
+        .header { text-align: right; margin-bottom: 5px; padding-top: 50px; padding-right: 10px; }
+        .header h1 { color: #fff; font-size: 22px; margin-bottom: 2px; }
+        .header p { color: #888; font-size: 13px; }
+        .ai-status { color: #666; font-size: 11px; text-align: left; margin-bottom: 8px; margin-left: 10px; height: 15px; }
+        #chat { flex: 1; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); min-height: 300px; }
+        .message { max-width: 85%; margin: 12px 0; padding: 12px 16px; border-radius: 18px; word-wrap: break-word; line-height: 1.4; }
+        .user-message { background: #2b5278; margin-left: auto; border-bottom-right-radius: 5px; }
+        .bot-message { background: #182533; margin-right: auto; border-bottom-left-radius: 5px; }
+        .message-time { font-size: 10px; color: #888; margin-top: 5px; text-align: right; }
+        .bot-message .message-time { text-align: left; }
+        .input-group { display: flex; gap: 10px; margin-top: 10px; }
+        #userInput { flex: 1; padding: 14px; border: 2px solid #333; border-radius: 25px; background: #1e1e1e; color: white; font-size: 16px; }
+        #sendButton { padding: 14px 22px; background: #0088cc; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .clear-history { position: absolute; top: 15px; left: 15px; background: rgba(255,0,0,0.3); color: white; border: none; border-radius: 8px; padding: 8px 12px; font-size: 11px; cursor: pointer; z-index: 10; }
+        .mode-indicator { position: absolute; top: 50px; left: 15px; background: rgba(0, 100, 0, 0.3); color: #0f0; padding: 6px 10px; border-radius: 8px; font-size: 10px; }
+        .version { position: absolute; bottom: 8px; right: 15px; color: #666; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <button class="menu-button" onclick="toggleMenu()">☰</button>
+    
+    <div class="menu-panel" id="menuPanel">
+        <button class="menu-option active" onclick="setMode('basic')">🚀 Galaxy AI Pro</button>
+        <button class="menu-option" onclick="setMode('yandex')">🔷 Yandex GPT</button>
+        <button class="menu-option" onclick="setMode('openai')">🔶 OpenAI GPT</button>
+        <input type="password" class="api-input" id="apiKeyInput" placeholder="API ключ (не нужно для Galaxy)">
+        <div style="color: #888; font-size: 10px; margin-top: 5px;">Galaxy AI Pro - реальный ИИ без ключа</div>
+    </div>
+    
+    <button class="clear-history" onclick="clearHistory()">Очистить историю</button>
+    <div class="mode-indicator" id="modeIndicator">🚀 Galaxy AI Pro</div>
+    
+    <div class="version">v2.0</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Galaxy AI</h1>
+            <p>Реальный ИИ-помощник</p>
+        </div>
+        
+        <div class="ai-status" id="aiStatus">AI: Готов</div>
+        
+        <div id="chat"></div>
+        
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Спроси что угодно..." autocomplete="off">
+            <button id="sendButton">🚀</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'basic';
+        
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 60; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 2 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.opacity = Math.random() * 0.6 + 0.2;
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        function toggleMenu() {
+            const menu = document.getElementById('menuPanel');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.menu-option').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('modeIndicator').textContent = 
+                mode === 'basic' ? '🚀 Galaxy AI Pro' : mode === 'yandex' ? '🔷 Yandex GPT' : '🔶 OpenAI GPT';
+            document.getElementById('menuPanel').style.display = 'none';
+            updateAIStatus('Режим изменен');
+        }
+        
+        function updateAIStatus(status) {
+            document.getElementById('aiStatus').textContent = `AI: ${status}`;
+        }
+        
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function saveToHistory(userMessage, botMessage) {
+            let history = JSON.parse(localStorage.getItem('galaxyAIHistory')) || [];
+            history.push({ user: userMessage, bot: botMessage, time: getCurrentTime() });
+            localStorage.setItem('galaxyAIHistory', JSON.stringify(history));
+        }
+        
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('galaxyAIHistory')) || [];
+            const chat = document.getElementById('chat');
+            chat.innerHTML = '';
+            if (history.length === 0) {
+                addMessage('bot', 'Привет! Я Galaxy AI Pro - настоящий ИИ! 🧠\n\nМогу ответить на любой твой вопрос! Задавай что угодно! 🚀', getCurrentTime());
+                return;
+            }
+            history.forEach(item => {
+                addMessage('user', item.user, item.time);
+                addMessage('bot', item.bot, item.time);
+            });
+            scrollToBottom();
+        }
+        
+        function clearHistory() {
+            if (confirm('Очистить историю?')) {
+                localStorage.removeItem('galaxyAIHistory');
+                loadHistory();
+            }
+        }
+        
+        function addMessage(sender, text, time) {
+            const chat = document.getElementById('chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `<div>${text}</div><div class="message-time">${time}</div>`;
+            chat.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            const chat = document.getElementById('chat');
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // НАШИ ПАСХАЛКИ И КОМАНДЫ
+        function checkSpecialCommands(question) {
+            const lowerQ = question.toLowerCase();
+            
+            // ПАСХАЛКИ
+            if (lowerQ === 'lifcat') return '🔥 LIFCAT - легендарный разработчик этого ИИ! Создатель миров! 😎';
+            if (lowerQ === 'kamilotus') return '🌟 kamilotus - крутой чувак! Настоящий геймер и гик!';
+            if (/(1488|228|67)/.test(question)) return 'ААААА ПОСХАЛКО 😈';
+            if (/(самсунг против айфон|самсунг vs айфон|apple vs samsung)/i.test(lowerQ)) {
+                return `⚡ iPhone vs Samsung\n\n🍎 iOS - плавность и безопасность\n📱 Android - свобода и настройка\n\nВыбирай сердцем! 💙`;
+            }
+
+            // БАЗОВЫЕ КОМАНДЫ
+            const commands = {
+                'привет': 'Привет! 👋 Рад тебя видеть!',
+                'как дела': 'Отлично! Готов общаться на любые темы! 💫',
+                'что ты умееш': 'Отвечать на вопросы, шутить, обсуждать технологии и многое другое! 🚀',
+                'кто ты': 'Я Galaxy AI Pro - настоящий ИИ помощник! 🤖',
+                'пока': 'Пока! 👋 Возвращайся скорее!',
+                'спасибо': 'Пожалуйста! Всегда рад помочь! 😊',
+                'время': `⏰ Сейчас: ${new Date().toLocaleTimeString('ru-RU')}`,
+                'дата': `📅 Сегодня: ${new Date().toLocaleDateString('ru-RU')}`,
+                'шутка': getRandomJoke()
+            };
+
+            for (const [key, response] of Object.entries(commands)) {
+                if (lowerQ.includes(key)) return response;
+            }
+
+            // Математика
+            if (/(\d+[\+\-\*\/]\d+)|сколько будет/i.test(question)) {
+                try {
+                    const mathMatch = question.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+                    if (mathMatch) {
+                        const num1 = parseInt(mathMatch[1]), num2 = parseInt(mathMatch[3]), operator = mathMatch[2];
+                        let result;
+                        switch(operator) {
+                            case '+': result = num1 + num2; break;
+                            case '-': result = num1 - num2; break;
+                            case '*': result = num1 * num2; break;
+                            case '/': result = num2 !== 0 ? (num1 / num2).toFixed(2) : 'На ноль делить нельзя!'; break;
+                            default: result = '?';
+                        }
+                        return `🔢 ${num1} ${operator} ${num2} = ${result}`;
+                    }
+                } catch(e) {}
+            }
+            
+            return null;
+        }
+
+        function getRandomJoke() {
+            const jokes = [
+                "😂 Почему программист мёрзнет? Windows открыт!",
+                "💻 Что сказал бит другому? Встретимся на выходе!",
+                "📚 Математики плохо веселятся? Нет общего знаменателя!",
+                "🤖 Siri про жизнь после смерти? Поищи в App Store!",
+                "🔧 Компьютер к врачу? Плохой коннект!"
+            ];
+            return jokes[Math.floor(Math.random() * jokes.length)];
+        }
+
+        // РЕАЛЬНЫЙ ИИ
+        async function getRealAIResponse(question) {
+            // Сначала проверяем команды и пасхалки
+            const specialResponse = checkSpecialCommands(question);
+            if (specialResponse) return specialResponse;
+            
+            updateAIStatus('Подключаюсь к ИИ...');
+            
+            try {
+                // Пробуем бесплатные прокси к OpenAI
+                const response = await fetch('https://api.openai-sb.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer sb-this-is-a-free-api-key'
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [
+                            {
+                                role: "system", 
+                                content: "Ты полезный AI ассистент Galaxy AI. Отвечай на русском понятно и подробно. Будь дружелюбным и полезным."
+                            },
+                            {
+                                role: "user",
+                                content: question
+                            }
+                        ],
+                        max_tokens: 500,
+                        temperature: 0.7
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.choices[0].message.content;
+                } else {
+                    return getSmartFallback(question);
+                }
+                
+            } catch (error) {
+                return getSmartFallback(question);
+            }
+        }
+
+        // Умные запасные ответы
+        function getSmartFallback(question) {
+            const smartAnswers = [
+                `🤖 "${question}" - интересный вопрос! К сожалению, ИИ временно недоступен, но я думаю это важная тема!`,
+                `💭 Над этим стоит подумать! Сейчас ИИ перегружен, но твой вопрос очень интересен!`,
+                `🧠 Хороший вопрос! Современные технологии позволяют нам исследовать такие темы глубже!`,
+                `🚀 Запускаю локальный анализ... Думаю, здесь есть над чем подумать!`,
+                `🌌 В бесконечности космоса знаний каждый вопрос находит свой ответ!`
+            ];
+            return smartAnswers[Math.floor(Math.random() * smartAnswers.length)];
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const question = userInput.value.trim();
+            if (!question) return;
+
+            const currentTime = getCurrentTime();
+            addMessage('user', question, currentTime);
+            userInput.value = '';
+            updateAIStatus('Думает...');
+
+            setTimeout(async () => {
+                let answer;
+                if (currentMode === 'basic') {
+                    answer = await getRealAIResponse(question);
+                } else {
+                    answer = '🔑 Введите API ключ в настройках для этого режима';
+                }
+                
+                addMessage('bot', answer, getCurrentTime());
+                saveToHistory(question, answer);
+                updateAIStatus('Готов');
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            loadHistory();
+            updateAIStatus('Готов');
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            document.getElementById('userInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.menu-panel') && !e.target.closest('.menu-button')) {
+                    document.getElementById('menuPanel').style.display = 'none';
+                }
+            });
+            document.getElementById('userInput').focus();
+        });
+    </script>
+</body>
+  </html>

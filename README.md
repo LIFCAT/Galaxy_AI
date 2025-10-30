@@ -1,2 +1,0 @@
-# Galaxy_AI
-AI
