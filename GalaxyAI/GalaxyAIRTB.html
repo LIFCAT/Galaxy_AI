@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Galaxy AI</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#000;color:#fff;min-height:100vh;position:relative;transition:background 0.3s}
+.theme-default{background:#000}.theme-red{background:#2a0f0f}.theme-orange{background:#2a1a0f}.theme-gray{background:#1a1a1a}.theme-purple{background:#1a0f2a}.theme-blue{background:#0f1a2a}
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+.star{position:absolute;background:#fff;border-radius:50%}
+.container{max-width:420px;margin:0 auto;padding:15px;height:100vh;display:flex;flex-direction:column}
+.menu-button{position:absolute;top:15px;right:15px;background:rgba(100,100,100,0.8);color:#fff;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;z-index:1000}
+.menu-panel{position:absolute;top:50px;right:15px;background:rgba(60,60,60,0.95);border-radius:12px;padding:15px;width:200px;display:none;z-index:999;border:1px solid rgba(255,255,255,0.2)}
+.menu-option{background:rgba(80,80,80,0.7);color:#fff;border:none;border-radius:8px;padding:10px;margin:5px 0;cursor:pointer;width:100%;text-align:left}
+.menu-option.active{background:rgba(0,136,204,0.7);border:1px solid #08c}
+.theme-option{width:20px;height:20px;border-radius:50%;display:inline-block;margin-right:8px;border:2px solid transparent}
+.theme-option.active{border-color:#fff}
+.api-input{width:100%;padding:8px;margin:5px 0;background:rgba(40,40,40,0.8);color:#fff;border:1px solid #555;border-radius:6px;font-size:12px}
+.header{text-align:right;margin-bottom:5px;padding-top:50px;padding-right:10px}
+.header h1{color:#fff;font-size:22px;margin-bottom:2px}
+.header p{color:#888;font-size:13px}
+.ai-status{color:#666;font-size:11px;text-align:left;margin-bottom:8px;margin-left:10px;height:15px;transition:all 0.3s}
+.status-typing{color:#0f0;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+#chat{flex:1;overflow-y:auto;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1);min-height:300px}
+.message{max-width:85%;margin:12px 0;padding:12px 16px;border-radius:18px;word-wrap:break-word;line-height:1.4}
+.user-message{background:#2b5278;margin-left:auto;border-bottom-right-radius:5px}
+.bot-message{background:#182533;margin-right:auto;border-bottom-left-radius:5px}
+.message-time{font-size:10px;color:#888;margin-top:5px;text-align:right}
+.bot-message .message-time{text-align:left}
+.input-group{display:flex;gap:10px;margin-top:10px}
+#userInput{flex:1;padding:14px;border:2px solid #333;border-radius:25px;background:#1e1e1e;color:#fff;font-size:16px}
+#sendButton{padding:14px 22px;background:#08c;color:#fff;border:none;border-radius:25px;cursor:pointer;font-weight:bold}
+.clear-history{position:absolute;top:15px;left:15px;background:rgba(255,0,0,0.3);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:11px;cursor:pointer;z-index:10}
+.mode-indicator{position:absolute;top:50px;left:15px;background:rgba(0,100,0,0.3);color:#0f0;padding:6px 10px;border-radius:8px;font-size:10px}
+.version{position:absolute;bottom:8px;right:15px;color:#666;font-size:10px}
+.submenu{display:none;margin-top:10px}
+.quick-replies{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-bottom:10px}
+.quick-reply{background:rgba(0,136,204,0.3);color:#fff;border:1px solid #0088cc;border-radius:15px;padding:8px 12px;font-size:12px;cursor:pointer;transition:all 0.3s}
+.quick-reply:hover{background:rgba(0,136,204,0.5)}
+</style>
+</head>
+<body class=theme-default>
+<div class=stars id=stars></div>
+<button class=menu-button onclick=toggleMenu()>☰</button>
+<div class=menu-panel id=menuPanel>
+<button class=menu-option onclick=toggleSubmenu('ai')>🤖 Выбор ИИ</button>
+<div class=submenu id=aiSubmenu>
+<button class="menu-option active" onclick=setMode('galaxy')>🚀 Galaxy AI</button>
+<button class=menu-option onclick=setMode('yandex')>🔷 Yandex GPT</button>
+<button class=menu-option onclick=setMode('openai')>🔶 OpenAI GPT</button>
+<button class=menu-option onclick=setMode('google')>🔵 Google AI</button>
+<button class=menu-option onclick=setMode('grok')>🟣 Grok AI</button>
+<input type=password class=api-input placeholder="API ключ">
+</div>
+<button class=menu-option onclick=toggleSubmenu('theme')>🎨 Выбор темы</button>
+<div class=submenu id=themeSubmenu>
+<button class=menu-option onclick=setTheme('default')><span class="theme-option active" style=background:#000></span> Стандартная</button>
+<button class=menu-option onclick=setTheme('red')><span class=theme-option style=background:#2a0f0f></span> Красная</button>
+<button class=menu-option onclick=setTheme('orange')><span class=theme-option style=background:#2a1a0f></span> Оранжевая</button>
+<button class=menu-option onclick=setTheme('gray')><span class=theme-option style=background:#1a1a1a></span> Серая</button>
+<button class=menu-option onclick=setTheme('purple')><span class=theme-option style=background:#1a0f2a></span> Фиолетовая</button>
+<button class=menu-option onclick=setTheme('blue')><span class=theme-option style=background:#0f1a2a></span> Синяя</button>
+</div>
+<div style=color:#888;font-size:10px;margin-top:5px>Galaxy AI - умный ИИ помощник</div>
+</div>
+<button class=clear-history onclick=clearHistory()>Очистить</button>
+<div class=mode-indicator id=modeIndicator>🚀 Galaxy AI</div>
+<div class=version>v0.2.0</div>
+<div class=container>
+<div class=header>
+<h1>Galaxy AI</h1>
+<p>Умный ИИ-помощник</p>
+</div>
+<div class="ai-status status-ready" id=aiStatus>AI: Готов</div>
+<div id=chat></div>
+
+<div class=quick-replies id=quickReplies>
+<div class=quick-reply onclick="insertQuickReply('Привет! 👋')">Привет</div>
+<div class=quick-reply onclick="insertQuickReply('Расскажи про iPhone')">iPhone</div>
+<div class=quick-reply onclick="insertQuickReply('Что лучше PS5 или Xbox?')">PS5 vs Xbox</div>
+<div class=quick-reply onclick="insertQuickReply('Самсунг или Эппл?')">Samsung vs Apple</div>
+<div class=quick-reply onclick="insertQuickReply('Новые технологии')">Технологии</div>
+<div class=quick-reply onclick="insertQuickReply('Игры 2024')">Игры</div>
+</div>
+
+<div class=input-group>
+<input type=text id=userInput placeholder="Задайте вопрос ИИ..." autocomplete=off>
+<button id=sendButton>🚀</button>
+</div>
+</div>
+<script>
+let currentMode='galaxy',currentTheme='default',knowledgeBase={},commandDB={}
+function initDB(){
+commandDB={
+pr:'Привет! 👋 Рад тебя видеть!',priv:'Хай бро! 👋 Как дела?',zd:'Здравствуй! 🌟',hi:'Hello! 🖐️',
+kakd:'Отлично! 💫 А у тебя?',kakt:'Прекрасно! Готов общаться! 🚀',kakj:'Супер! Что нового?',
+chto:'Отвечаю на вопросы, обсуждаю технологии, науку, игры, фильмы и многое другое! 🧠',
+kto:'Я Galaxy AI v0.2.0 - умный ИИ помощник! 🤖',
+pok:'Пока! 👋 Возвращайся скорее!',bb:'Bye bye! 🖐️',da:'Да! ✅',net:'Нет! ❌',
+sp:'Пожалуйста! 😊 Рад помочь!',bl:'Благодарю! 🙏',vrem:`⏰ ${new Date().toLocaleTimeString('ru-RU')}`,
+dat:`📅 ${new Date().toLocaleDateString('ru-RU')}`,shut:getRandomJoke(),
+kaknaz:'Galaxy AI - умный ИИ помощник! 🌌',
+chtonov:'Расскажи что у тебя нового! 🎯',
+pomog:'Конечно! Чем могу помочь? 💪',
+sovet:'Верь в себя! Ты можешь всё! 🌟',
+motiv:'Каждая великая цель начинается с маленького шага! 🚀',
+lub:'Любовь - самое сильное чувство! ❤️',
+druj:'Дружба - это когда можно быть собой! 🤝',
+rab:'Работа важна, но не забывай отдыхать! 💼',
+uch:'Учись постоянно! Знания - это сила! 📚',
+otd:'Отдых нужен для перезагрузки! 🏖️',
+zdor:'Здоровье - главная ценность! 🏃‍♂️',
+den:'Хорошего дня! ☀️',noch:'Спокойной ночи! 🌙',
+utr:'Доброе утро! 🌅',vec:'Добрый вечер! 🌇',
+kras:'Красота спасет мир! 🎨',mus:'Музыка - язык души! 🎵',
+film:'Кино - великое искусство! 🎬',igr:'Игры развивают логику! 🎮',
+knig:'Книги - источник знаний! 📚',sport:'Спорт - это жизнь! ⚽',
+put:'Удачи в пути! 🛣️',praz:'С праздником! 🎉',
+roj:'С днем рождения! 🎂',novg:'С Новым годом! 🎄',
+imen:'С днем ангела! 👼',pob:'Поздравляю с победой! 🏆',
+uspe:'Успехов в делах! 📈',zdorv:'Будь здоров! 💊',
+spok:'Сохраняй спокойствие! 🧘',smex:'Смех продлевает жизнь! 😂',
+mecht:'Мечтай и достигай! 🌠',sin:'Сингулярность близко! 🤖',
+kosm:'Космос бесконечен! 🌌',zvez:'Звезды манят! ⭐',
+luna:'Луна прекрасна! 🌙',sol:'Солнце - наша звезда! ☀️',
+mar:'Марс ждет колонизации! 🚀',chd:'Черные дыры загадочны! ⚫',
+vsel:'Вселенная полна тайн! 🔭',fiz:'Физика - фундамент науки! ⚛️',
+him:'Химия - наука о веществах! 🧪',bio:'Биология - наука о жизни! 🧬',
+mat:'Математика - язык вселенной! 📐',ist:'История учит нас! 📜',
+geo:'География - наука о Земле! 🗺️',psy:'Психология - наука о душе! 🧠',
+fil:'Философия - любовь к мудрости! 💭',eco:'Экология важна для планеты! 🌍',
+tex:'Технологии меняют мир! 💻',ai:'ИИ - будущее человечества! 🤖',
+prog:'Программирование - искусство! 🖥️',web:'Веб-разработка крута! 🌐',
+mob:'Мобильные приложения everywhere! 📱',game:'Геймдев - мечта многих! 🎮',
+vr:'VR погружает в другие миры! 🥽',ar:'AR дополняет реальность! 📱',
+block:'Блокчейн - технология будущего! ⛓️',crypt:'Криптовалюты - новые деньги! ₿',
+start:'Стартапы меняют мир! 💡',biz:'Бизнес - двигатель экономики! 💰',
+inv:'Инвестируй в знания! 📊',fin:'Финансовая грамотность важна! 💵'},
+knowledgeBase={
+i:'🤖 ИИ - будущее технологий! Может генерировать текст, изображения, код, видео!',
+kos:'🌌 Космос бесконечен! Черные дыры, нейтронные звезды, темная материя!',
+tex:'💻 Технологии: ИИ, VR, блокчейн, квантовые компьютеры, интернет вещей!',
+pro:'🚀 Программирование: Python, JavaScript, Java, C++, AI/ML, веб-разработка!',
+fiz:'🔭 Физика: квантовая механика, теория относительности, термодинамика!',
+ig:'🎮 Игры: PC, PlayStation, Xbox, Nintendo, мобильные, киберспорт!',
+fil:'🎬 Фильмы: фантастика, боевики, драмы, комедии, ужасы, Marvel, DC!',
+mus:'🎵 Музыка: поп, рок, хип-хоп, электронная, классика, Spotify, Apple Music!',
+kni:'📚 Книги: фантастика, фэнтези, детективы, научпоп, классика!',
+ist:'🏛️ История: древний мир, средневековье, современность, великие империи!',
+nau:'🔬 Наука: исследования, открытия, технологии, будущее человечества!',
+isk:'🎨 Искусство: живопись, скульптура, архитектура, цифровое искусство!',
+spo:'⚽ Спорт: футбол, баскетбол, хоккей, теннис, Олимпийские игры!',
+put:'✈️ Путешествия: разные страны, культуры, достопримечательности, приключения!',
+kyl:'🍕 Кулинария: разные кухни мира, рецепты, здоровое питание!',
+mod:'👗 Мода: стиль, тренды, дизайнеры, история моды!',
+avt:'🚗 Автомобили: новые технологии, электромобили, автогонки!',
+fot:'📷 Фотография: искусство, техника, композиция, обработка!',
+// НОВЫЕ ЗНАНИЯ О ТЕХНИКЕ
+iph:'📱 iPhone 15 Pro: A17 Pro, титановый корпус, 48МП камера, USB-C, Dynamic Island',
+sam:'📱 Samsung S24 Ultra: Snapdragon 8 Gen 3, S-Pen, 200МП камера, AI функции',
+ps5:'🎮 PS5: 4K 120fps, SSD, DualSense, PlayStation VR2, эксклюзивы Spider-Man 2',
+xbox:'🎮 Xbox Series X: 12 TFLOPS, Quick Resume, Game Pass, Halo Infinite',
+nint:'🎮 Nintendo Switch: гибридная консоль, Zelda, Mario, портативность',
+pc:'💻 Игровой ПК: RTX 4090, Ryzen 9, DDR5, SSD NVMe, 4K гейминг',
+mac:'💻 MacBook: M3 чип, macOS, Retina дисплей, долгая батарея, экосистема',
+andr:'📱 Android: кастомизация, Google сервисы, много производителей',
+ios:'📱 iOS: плавность, безопасность, экосистема Apple, регулярные обновления',
+gp:'🎮 Game Pass: Netflix для игр, 100+ игр, облачный гейминг',
+vr:'🥽 VR: Meta Quest 3, Apple Vision Pro, иммерсивный опыт',
+ar:'📱 AR: дополненная реальность, Pokemon Go, IKEA Place',
+tv:'📺 Телевизоры: OLED, QLED, 8K, Smart TV, HDR, игровые режимы',
+aud:'🎧 Аудио: AirPods, Sony WH-1000XM5, беспроводные наушники, шумодав',
+cam:'📷 Камеры: Sony A7IV, Canon R5, зеркалки, беззеркалки, 8K видео',
+smarth:'🏠 Умный дом: Alexa, Google Home, умные лампы, розетки, безопасность'},
+knowledgeBase.ii=knowledgeBase.i,knowledgeBase.tehn=knowledgeBase.tex,knowledgeBase.prog=knowledgeBase.pro,
+knowledgeBase.igry=knowledgeBase.ig,knowledgeBase.filmy=knowledgeBase.fil,knowledgeBase.muzyka=knowledgeBase.mus,
+knowledgeBase.knigi=knowledgeBase.kni,knowledgeBase.istoria=knowledgeBase.ist,knowledgeBase.nauka=knowledgeBase.nau,
+knowledgeBase.iskusstvo=knowledgeBase.isk,knowledgeBase.sport=knowledgeBase.spo,knowledgeBase.puteshestvia=knowledgeBase.put,
+knowledgeBase.iphone=knowledgeBase.iph,knowledgeBase.samsung=knowledgeBase.sam,knowledgeBase.playstation=knowledgeBase.ps5,
+knowledgeBase.xbox=knowledgeBase.xbox,knowledgeBase.nintendo=knowledgeBase.nint,knowledgeBase.computer=knowledgeBase.pc,
+knowledgeBase.macbook=knowledgeBase.mac,knowledgeBase.android=knowledgeBase.andr,knowledgeBase.ios=knowledgeBase.ios,
+knowledgeBase.gamepass=knowledgeBase.gp,knowledgeBase.virtual=knowledgeBase.vr,knowledgeBase.augmented=knowledgeBase.ar,
+knowledgeBase.television=knowledgeBase.tv,knowledgeBase.audio=knowledgeBase.aud,knowledgeBase.camera=knowledgeBase.cam,
+knowledgeBase.smarthome=knowledgeBase.smarth
+}
+function createStars(){const e=document.getElementById("stars");for(let t=0;t<60;t++){const a=document.createElement("div");a.className="star",a.style.width=`${2*Math.random()+1}px`,a.style.height=a.style.width,a.style.left=`${100*Math.random()}%`,a.style.top=`${100*Math.random()}%`,a.style.opacity=.6*Math.random()+.2,e.appendChild(a)}}
+function toggleMenu(){const e=document.getElementById("menuPanel");e.style.display="block"===e.style.display?"none":"block",hideSubmenus()}
+function toggleSubmenu(e){const t=document.getElementById(e+"Submenu");t.style.display="none"===t.style.display?"block":"none"}
+function hideSubmenus(){document.querySelectorAll(".submenu").forEach(e=>{e.style.display="none"})}
+function setMode(e){currentMode=e,document.querySelectorAll(".menu-option").forEach(e=>e.classList.remove("active")),event.target.classList.add("active"),document.getElementById("modeIndicator").textContent="galaxy"===e?"🚀 Galaxy AI":"yandex"===e?"🔷 Yandex GPT":"openai"===e?"🔶 OpenAI GPT":"google"===e?"🔵 Google AI":"🟣 Grok AI",hideMenu(),updateAIStatus("Готов","ready")}
+function setTheme(e){currentTheme=e,document.body.className=`theme-${e}`,document.querySelectorAll(".theme-option").forEach(e=>e.classList.remove("active")),event.target.querySelector(".theme-option").classList.add("active"),hideMenu()}
+function hideMenu(){document.getElementById("menuPanel").style.display="none",hideSubmenus()}
+function updateAIStatus(e,t){const a=document.getElementById("aiStatus");a.textContent=`AI: ${e}`,a.className="ai-status status-"+(t||"ready")}
+function getCurrentTime(){return new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})}
+function saveToHistory(e,t){let a=JSON.parse(localStorage.getItem("galaxyAIHistory"))||[];a.push({user:e,bot:t,time:getCurrentTime()}),localStorage.setItem("galaxyAIHistory",JSON.stringify(a))}
+function loadHistory(){const e=JSON.parse(localStorage.getItem("galaxyAIHistory"))||[],t=document.getElementById("chat");t.innerHTML="",0===e.length?(addMessage("bot","Привет! Я Galaxy AI v0.2.0 🧠\n\n• Умные ответы о технике\n• iPhone, PS5, Samsung\n• Молниеносные ответы\n• 6 тем + 5 ИИ\n• Умные команды\n\nСпрашивай о технологиях! 🚀",getCurrentTime()),void 0):(e.forEach(e=>{addMessage("user",e.user,e.time),addMessage("bot",e.bot,e.time)}),scrollToBottom())}
+function clearHistory(){confirm("Очистить историю?")&&(localStorage.removeItem("galaxyAIHistory"),loadHistory())}
+function addMessage(e,t,a){const l=document.getElementById("chat"),o=document.createElement("div");o.className=`message ${e}-message`,o.innerHTML=`<div>${t}</div><div class=message-time>${a}</div>`,l.appendChild(o),scrollToBottom()}
+function scrollToBottom(){const e=document.getElementById("chat");e.scrollTop=e.scrollHeight}
+function getRandomJoke(){const e=["😂 Почему программист мёрзнет? Windows открыт!","💻 Что сказал бит другому? Встретимся на выходе!","📚 Математики плохо веселятся? Нет общего знаменателя!","🎮 PS5 или Xbox? Оба круты, но PS5 за эксклюзивы!"];return e[Math.floor(Math.random()*e.length)]}
+function checkCommands(e){const t=e.toLowerCase();if("lifcat"===t)return"🔥 LIFCAT - крутой разработчик! 😎";if("kamilotus"===t)return"🌟 kamilotus - крутой чувак!";if(/(1488|228|67)/.test(e))return"ААААА ПОСХАЛКО 😈";if(/(самсунг против айфон|самсунг vs айфон)/i.test(t))return`⚡ iPhone vs Samsung\n\n🍎 iPhone: плавность, экосистема, камеры\n📱 Samsung: свобода, S-Pen, AI функции\n\nВыбирай сердцем! 💙`;if(/(пс5 против xbox|ps5 vs xbox)/i.test(t))return`🎮 PS5 vs Xbox Series X\n\n🎯 PS5: эксклюзивы, DualSense, VR\n🟢 Xbox: Game Pass, мощность, обратная совместимость\n\nОба отличны! 💪`;for(const[a,l]of Object.entries(commandDB))if(t.includes(a))return"shut"===a?getRandomJoke():l;if(/(\d+[\+\-\*\/]\d+)|сколько будет/i.test(e))try{const t=e.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);if(t){const a=parseInt(t[1]),l=parseInt(t[3]),o=t[2];let n;switch(o){case"+":n=a+l;break;case"-":n=a-l;break;case"*":n=a*l;break;case"/":n=0!==l?(a/l).toFixed(2):"На ноль делить нельзя!";break;default:n="?"}return`🔢 ${a} ${o} ${l} = ${n}`}}catch(e){}return null}
+function searchKnowledge(e){const t=e.toLowerCase();for(const[a,l]of Object.entries(knowledgeBase))if(t.includes(a))return l;return null}
+function getSmartResponse(e){const t=e.toLowerCase(),a=[`🤖 "${e}" - интересно! Современные технологии позволяют...`,`💭 Над этим стоит подумать! Технологии развиваются...`,`🧠 Хороший вопрос! Технические особенности...`,`🚀 Анализирую... Это связано с развитием технологий...`,`🌌 В контексте современных устройств...`];return a[Math.floor(Math.random()*a.length)]}
+async function getAIResponse(e){const t=checkCommands(e);if(t)return t;const a=searchKnowledge(e);if(a)return a;updateAIStatus("Думает","typing");try{const t=await fetch("https://api.openai-sb.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"sb-this-is-a-free-api-key"},body:JSON.stringify({model:"gpt-3.5-turbo",messages:[{role:"system",content:"Отвечай кратко на русском."},{role:"user",content:e}],max_tokens:100,temperature:0.7})});if(t.ok){const a=await t.json();return a.choices[0].message.content}}catch(t){}return getSmartResponse(e)}
+async function sendMessage(){const e=document.getElementById("userInput"),t=e.value.trim();if(!t)return;const a=getCurrentTime();addMessage("user",t,a),e.value="",updateAIStatus("Печатает","typing");setTimeout(async()=>{let a;"galaxy"===currentMode?a=await getAIResponse(t):a="🔑 Введите API ключ",addMessage("bot",a,getCurrentTime()),saveToHistory(t,a),updateAIStatus("Готов","ready")},600)}
+function insertQuickReply(e){document.getElementById("userInput").value=e,document.getElementById("userInput").focus()}
+document.addEventListener("DOMContentLoaded",function(){initDB(),createStars(),loadHistory(),updateAIStatus("Готов","ready"),document.getElementById("sendButton").addEventListener("click",sendMessage),document.getElementById("userInput").addEventListener("keypress",function(e){"Enter"===e.key&&sendMessage()}),document.addEventListener("click",function(e){e.target.closest(".menu-panel")||e.target.closest(".menu-button")||(hideMenu())}),document.getElementById("userInput").focus()});
+</script>
+</body>
+  </html>
