@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Galaxy AI - Скачать</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+.star{position:absolute;background:#fff;border-radius:50%}
+.container{text-align:center;max-width:400px;width:100%;background:rgba(30,30,30,0.8);padding:40px 30px;border-radius:15px;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px)}
+.app-icon{font-size:80px;margin-bottom:20px}
+.app-name{font-size:32px;margin-bottom:5px;color:#fff}
+.app-version{font-size:16px;color:#0088cc;margin-bottom:30px}
+.download-btn{display:inline-block;background:#0088cc;color:#fff;text-decoration:none;padding:18px 50px;border-radius:25px;font-size:20px;font-weight:bold;margin:25px 0;border:2px solid #0088cc;transition:all 0.3s;cursor:pointer}
+.download-btn:hover{background:transparent;color:#0088cc}
+.description{background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);margin-top:20px}
+.feature-list{margin:15px 0;text-align:left}
+.feature-item{margin:8px 0;color:#ccc;padding-left:10px}
+.file-info{color:#666;font-size:14px;margin-top:15px}
+</style>
+</head>
+<body>
+<div class=stars id=stars></div>
+
+<div class=container>
+<div class=app-icon>🚀</div>
+<h1 class=app-name>Galaxy AI</h1>
+<div class=app-version>v0.2.4</div>
+
+<a href="Galaxy_AI_19229216.APK" class=download-btn download>
+📥 Скачать APK
+</a>
+
+<div class=description>
+<h3 style=margin-bottom:15px;color:#0088cc>🌟 Возможности</h3>
+<div class=feature-list>
+<div class=feature-item>🤖 Умный ИИ-помощник</div>
+<div class=feature-item>🎮 Симулятор кейсов с анимацией</div>
+<div class=feature-item>🎨 6 тем оформления</div>
+<div class=feature-item>📱 Работает оффлайн</div>
+<div class=feature-item>💬 Запоминает историю разговоров</div>
+</div>
+<div class=file-info>
+Файл: Galaxy_AI_19229216.APK<br>
+Размер: 31.64 МБ
+</div>
+</div>
+</div>
+
+<script>
+function createStars(){
+const starsContainer=document.getElementById("stars")
+for(let i=0;i<100;i++){
+const star=document.createElement("div")
+star.className="star"
+star.style.width=`${Math.random()*2+1}px`
+star.style.height=star.style.width
+star.style.left=`${Math.random()*100}%`
+star.style.top=`${Math.random()*100}%`
+star.style.opacity=Math.random()*0.6+0.2
+starsContainer.appendChild(star)
+}
+}
+createStars()
+</script>
+</body>
+</html>
