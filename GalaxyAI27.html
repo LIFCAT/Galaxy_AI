@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Galaxy AI</title>
+    <style>
+        /* ВАШИ ОРИГИНАЛЬНЫЕ СТИЛИ */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(45deg, #0066cc, #00ccff);
+            box-shadow: 0 0 20px rgba(0, 102, 204, 0.5);
+        }
+        
+        .chat-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .chat-box {
+            flex: 1;
+            height: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .message {
+            margin: 15px 0;
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background: linear-gradient(45deg, #0066cc, #00ccff);
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .input-area input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+        
+        .input-area button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #0066cc, #00ccff);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.4);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .chat-box::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #0066cc, #00ccff);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Galaxy AI</h1>
+            <p>Ваш персональный искусственный интеллект</p>
+        </div>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('basic')">Базовый режим</button>
+            <button class="mode-btn" onclick="switchMode('military')">Военный режим</button>
+            <button class="mode-btn" onclick="switchMode('medical')">Медицинский режим</button>
+            <button class="mode-btn" onclick="switchMode('tech')">Технический режим</button>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-box" id="chatBox">
+                <!-- Сообщения будут здесь -->
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Введите ваш вопрос..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'basic';
+        
+        // Инициализация чата
+        function initChat() {
+            addMessage('bot', '🤖 Добро пожаловать в Galaxy AI! Выберите режим работы.');
+        }
+        
+        // Переключение режимов
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Обновляем активные кнопки
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Очищаем чат при переключении режима
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = '';
+            
+            let welcomeMessage = '';
+            switch(mode) {
+                case 'basic':
+                    welcomeMessage = '🔹 Базовый режим активирован. Теперь с реальным ИИ!';
+                    break;
+                case 'military':
+                    welcomeMessage = '🎖️ Военный режим активирован. Готов к тактическим операциям.';
+                    break;
+                case 'medical':
+                    welcomeMessage = '🏥 Медицинский режим активирован. Готов к медицинским консультациям.';
+                    break;
+                case 'tech':
+                    welcomeMessage = '💻 Технический режим активирован. Готов к решению технических задач.';
+                    break;
+            }
+            
+            addMessage('bot', welcomeMessage);
+        }
+        
+        // Добавление сообщения в чат
+        function addMessage(sender, text) {
+            const chatBox = document.getElementById('chatBox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        // Обработка нажатия Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // Реальный ИИ для базового режима
+        async function getAIResponse(userMessage) {
+            try {
+                // Бесплатный AI API
+                const response = await fetch('https://api.openai-proxy.org/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: "system", 
+                                content: "Ты - полезный ассистент Galaxy AI. Отвечай на русском языке развернуто и полезно."
+                            },
+                            {
+                                role: "user",
+                                content: userMessage
+                            }
+                        ],
+                        max_tokens: 500
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.choices[0].message.content;
+                } else {
+                    throw new Error('API error');
+                }
+            } catch (error) {
+                // Если ИИ недоступен, используем оригинальные ответы
+                return getOriginalResponse(userMessage);
+            }
+        }
+        
+        // ОРИГИНАЛЬНЫЕ ОТВЕТЫ ИЗ ВАШЕГО СКРИПТА
+        function getOriginalResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Базовые команды
+            if (lowerMessage.includes('привет') || lowerMessage.includes('здравств')) {
+                return 'Привет! Рад вас видеть! 🌟';
+            } else if (lowerMessage.includes('как дела') || lowerMessage.includes('как ты')) {
+                return 'Всё отлично! Готов к работе! 🚀';
+            } else if (lowerMessage.includes('пасхалка')) {
+                return '🎉 Вы нашли пасхалку! Galaxy AI всегда на страже!';
+            } else if (lowerMessage.includes('космос') || lowerMessage.includes('галактика')) {
+                return '🌌 Галактика полна загадок... Может, исследовать её вместе?';
+            } else if (lowerMessage.includes('спасибо')) {
+                return 'Всегда рад помочь! ✨';
+            } else if (lowerMessage.includes('погода')) {
+                return 'На орбите всегда солнечно! ☀️';
+            } else if (lowerMessage.includes('время')) {
+                return 'В космосе время относительно... А на Земле сейчас: ' + new Date().toLocaleTimeString();
+            } else if (lowerMessage.includes('шутка') || lowerMessage.includes('пошути')) {
+                const jokes = [
+                    'Почему программист всегда носит очки? Потому что не может C#! 😄',
+                    'Что говорит ИИ при перегреве? "Мне нужно остыть... вычисления!" ❄️',
+                    'Почему робот не пьет? Потому что боится короткого замыкания! ⚡'
+                ];
+                return jokes[Math.floor(Math.random() * jokes.length)];
+            }
+            
+            // Военный режим
+            if (currentMode === 'military') {
+                if (lowerMessage.includes('координат') || lowerMessage.includes('позиция')) {
+                    return 'Координаты: 45.1234, 34.5678. Позиция стабильная.';
+                } else if (lowerMessage.includes('статус') || lowerMessage.includes('доклад')) {
+                    return 'Все системы в норме. Готовность: 100%.';
+                } else if (lowerMessage.includes('цель') || lowerMessage.includes('мишень')) {
+                    return 'Цель идентифицирована. Ожидаю команд.';
+                }
+            }
+            
+            // Медицинский режим
+            if (currentMode === 'medical') {
+                if (lowerMessage.includes('давление') || lowerMessage.includes('давлени')) {
+                    return 'Рекомендую измерить давление. Норма: 120/80 мм рт.ст.';
+                } else if (lowerMessage.includes('температура')) {
+                    return 'Нормальная температура тела: 36.6°C. При повышенной температуре обратитесь к врачу.';
+                } else if (lowerMessage.includes('головная боль') || lowerMessage.includes('голова болит')) {
+                    return 'При головной боли рекомендуется отдых и покой. Если боль persists - обратитесь к врачу.';
+                }
+            }
+            
+            // Технический режим
+            if (currentMode === 'tech') {
+                if (lowerMessage.includes('ошибк') || lowerMessage.includes('баг')) {
+                    return 'Проведите диагностику системы. Проверьте логи для определения причины ошибки.';
+                } else if (lowerMessage.includes('код') || lowerMessage.includes('программ')) {
+                    return 'Готов помочь с техническими вопросами. Опишите проблему подробнее.';
+                } else if (lowerMessage.includes('интернет') || lowerMessage.includes('сеть')) {
+                    return 'Проверьте подключение к сети. Перезагрузите роутер при необходимости.';
+                }
+            }
+            
+            // Если это базовый режим и вопрос не распознан - используем ИИ
+            if (currentMode === 'basic') {
+                return "⏳ Думаю над вашим вопросом...";
+            }
+            
+            return 'Интересный вопрос! Можете уточнить?';
+        }
+        
+        // Основная функция отправки сообщения
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            addMessage('user', message);
+            input.value = '';
+            
+            let response;
+            
+            if (currentMode === 'basic') {
+                // Показываем индикатор загрузки
+                addMessage('bot', '⏳ Думаю...');
+                
+                // Сначала проверяем оригинальные ответы
+                const originalResponse = getOriginalResponse(message);
+                
+                if (originalResponse !== "⏳ Думаю над вашим вопросом...") {
+                    // Если есть оригинальный ответ - используем его
+                    const chatBox = document.getElementById('chatBox');
+                    chatBox.removeChild(chatBox.lastChild);
+                    response = originalResponse;
+                } else {
+                    // Если нет оригинального ответа - используем ИИ
+                    response = await getAIResponse(message);
+                    const chatBox = document.getElementById('chatBox');
+                    chatBox.removeChild(chatBox.lastChild);
+                }
+            } else {
+                // Для других режимов используем только оригинальные ответы
+                response = getOriginalResponse(message);
+            }
+            
+            addMessage('bot', response);
+        }
+        
+        // Запуск при загрузке
+        window.onload = initChat;
+    </script>
+</body>
+  </html>
