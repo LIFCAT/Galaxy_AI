@@ -1,0 +1,587 @@
+from IPython.display import HTML, display, Javascript
+import json
+
+# Galaxy AI ULTIMATE - Jupyter Notebook Version
+html_code = '''
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy AI ULTIMATE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .theme-default { background: #000; }
+        .theme-red { background: #2a0f0f; }
+        .theme-orange { background: #2a1a0f; }
+        .theme-gray { background: #1a1a1a; }
+        .theme-purple { background: #1a0f2a; }
+        .theme-blue { background: #0f1a2a; }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 15px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .menu-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(100, 100, 100, 0.8);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .menu-button:hover {
+            background: rgba(120, 120, 120, 0.9);
+            transform: scale(1.05);
+        }
+
+        .menu-panel {
+            position: absolute;
+            top: 50px;
+            right: 15px;
+            background: rgba(60, 60, 60, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            width: 200px;
+            display: none;
+            z-index: 999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.3s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-option {
+            background: rgba(80, 80, 80, 0.7);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .menu-option:hover {
+            background: rgba(100, 100, 100, 0.9);
+            transform: translateX(5px);
+        }
+
+        .menu-option.active {
+            background: rgba(0, 136, 204, 0.7);
+            border: 1px solid #08c;
+        }
+
+        .theme-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .theme-option.active {
+            border-color: #fff;
+            animation: bounce 0.5s ease;
+        }
+
+        .api-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(40, 40, 40, 0.8);
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .header {
+            text-align: right;
+            margin-bottom: 5px;
+            padding-top: 50px;
+            padding-right: 10px;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .ai-status {
+            color: rgba(102, 102, 102, 0.8);
+            font-size: 11px;
+            text-align: left;
+            margin-bottom: 8px;
+            margin-left: 10px;
+            height: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        #chat {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 70px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 300px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .message {
+            max-width: 85%;
+            margin: 12px 0;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            animation: fadeIn 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .message:hover {
+            transform: scale(1.02);
+        }
+
+        .user-message {
+            background: #2b5278;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .bot-message {
+            background: #182533;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .bot-message .message-time {
+            text-align: left;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            position: relative;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #333;
+            border-radius: 25px;
+            background: #1e1e1e;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #userInput:focus {
+            border-color: #08c;
+            transform: scale(1.02);
+        }
+
+        #sendButton {
+            padding: 14px 22px;
+            background: #08c;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        #sendButton:hover {
+            background: #0077b3;
+            transform: scale(1.05);
+        }
+
+        .clear-history {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 0, 0, 0.3);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .clear-history:hover {
+            background: rgba(255, 0, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            background: rgba(0, 100, 0, 0.3);
+            color: #0f0;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .version {
+            position: absolute;
+            bottom: 8px;
+            right: 15px;
+            color: #666;
+            font-size: 10px;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .submenu {
+            display: none;
+            margin-top: 10px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .quick-replies {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            justify-content: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .quick-reply {
+            background: rgba(0, 136, 204, 0.3);
+            color: #fff;
+            border: 1px solid #0088cc;
+            border-radius: 15px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .quick-reply:hover {
+            background: rgba(0, 136, 204, 0.5);
+            transform: scale(1.1);
+        }
+
+        .quick-menu {
+            background: rgba(0, 136, 204, 0.5);
+            color: #fff;
+            border: 2px solid #0088cc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            position: absolute;
+            left: 15px;
+            bottom: 75px;
+            transition: all 0.3s ease;
+            animation: bounce 2s infinite;
+        }
+
+        .quick-menu:hover {
+            background: rgba(0, 136, 204, 0.7);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Анимация появления быстрых ответов */
+        @keyframes quickRepliesAppear {
+            0% { 
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .quick-replies.show {
+            display: flex;
+            animation: quickRepliesAppear 0.5s ease-out;
+        }
+
+        .quick-replies.show .quick-reply {
+            animation: quickRepliesAppear 0.5s ease-out backwards;
+        }
+
+        .quick-replies.show .quick-reply:nth-child(1) { animation-delay: 0.1s; }
+        .quick-replies.show .quick-reply:nth-child(2) { animation-delay: 0.2s; }
+        .quick-replies.show .quick-reply:nth-child(3) { animation-delay: 0.3s; }
+        .quick-replies.show .quick-reply:nth-child(4) { animation-delay: 0.4s; }
+        .quick-replies.show .quick-reply:nth-child(5) { animation-delay: 0.5s; }
+        .quick-replies.show .quick-reply:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body class="theme-default">
+    <div class="stars" id="stars"></div>
+    <button class="menu-button" onclick="toggleMenu()">☰</button>
+    
+    <div class="menu-panel" id="menuPanel">
+        <button class="menu-option" onclick="toggleSubmenu('ai')">🤖 Выбор ИИ</button>
+        <div class="submenu" id="aiSubmenu">
+            <button class="menu-option active" onclick="setMode('galaxy')">🚀 Galaxy AI</button>
+            <button class="menu-option" onclick="setMode('yandex')">🔷 Yandex GPT</button>
+            <button class="menu-option" onclick="setMode('openai')">🔶 OpenAI GPT</button>
+            <button class="menu-option" onclick="setMode('google')">🔵 Google AI</button>
+            <button class="menu-option" onclick="setMode('grok')">🟣 Grok AI</button>
+            <input type="password" class="api-input" placeholder="API ключ">
+        </div>
+        
+        <button class="menu-option" onclick="toggleSubmenu('theme')">🎨 Выбор темы</button>
+        <div class="submenu" id="themeSubmenu">
+            <button class="menu-option" onclick="setTheme('default')">
+                <span class="theme-option active" style="background:#000"></span> Стандартная
+            </button>
+            <button class="menu-option" onclick="setTheme('red')">
+                <span class="theme-option" style="background:#2a0f0f"></span> Красная
+            </button>
+            <button class="menu-option" onclick="setTheme('orange')">
+                <span class="theme-option" style="background:#2a1a0f"></span> Оранжевая
+            </button>
+            <button class="menu-option" onclick="setTheme('gray')">
+                <span class="theme-option" style="background:#1a1a1a"></span> Серая
+            </button>
+            <button class="menu-option" onclick="setTheme('purple')">
+                <span class="theme-option" style="background:#1a0f2a"></span> Фиолетовая
+            </button>
+            <button class="menu-option" onclick="setTheme('blue')">
+                <span class="theme-option" style="background:#0f1a2a"></span> Синяя
+            </button>
+        </div>
+        
+        <div style="color:#888;font-size:10px;margin-top:5px">Galaxy AI ULTIMATE - Умный ИИ помощник</div>
+    </div>
+    
+    <button class="clear-history" onclick="clearHistory()">Очистить историю</button>
+    <div class="mode-indicator" id="modeIndicator">🚀 Galaxy AI</div>
+    <div class="version">v2.5</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Galaxy AI</h1>
+            <p>Умный ИИ-помощник</p>
+        </div>
+        
+        <div class="ai-status" id="aiStatus">AI: Готов</div>
+        <div id="chat"></div>
+        
+        <div class="quick-replies" id="quickReplies">
+            <div class="quick-reply" onclick="insertQuickReply('Привет! 👋')">Привет</div>
+            <div class="quick-reply" onclick="insertQuickReply('Сколько время?')">Время</div>
+            <div class="quick-reply" onclick="insertQuickReply('Расскажи про iPhone')">iPhone</div>
+            <div class="quick-reply" onclick="insertQuickReply('Что лучше PS5 или Xbox?')">PS5 vs Xbox</div>
+            <div class="quick-reply" onclick="insertQuickReply('Самсунг или Эппл?')">Samsung vs Apple</div>
+            <div class="quick-reply" onclick="insertQuickReply('Новые технологии')">Технологии</div>
+            <div class="quick-reply" onclick="insertQuickReply('Игры 2024')">Игры</div>
+            <div class="quick-reply" onclick="insertQuickReply('Что я спрашивал в прошлом сообщении?')">Предыдущий вопрос</div>
+        </div>
+        
+        <div class="quick-menu" onclick="toggleQuickReplies()">+</div>
+        
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Задайте вопрос ИИ..." autocomplete="off">
+            <button id="sendButton">🚀</button>
+        </div>
+    </div>
+
+    <script>
+        // Galaxy AI ULTIMATE - Улучшенная версия
+        let currentMode = 'galaxy';
+        let currentTheme = 'default';
+        let knowledgeBase = {};
+        let commandDB = {};
+        let lastQuestion = '';
+
+        // 🔥 РАСШИРЕННАЯ БАЗА ДАННЫХ
+        function initDB() {
+            commandDB = {
+                'pr': 'Привет! 👋 Рад тебя видеть!',
+                'priv': 'Хай бро! 👋 Как дела?',
+                'vrem': '⏰ ' + new Date().toLocaleTimeString('ru-RU'),
+                'dat': '📅 ' + new Date().toLocaleDateString('ru-RU'),
+                'shut': getRandomJoke(),
+                'kaknaz': 'Galaxy AI ULTIMATE - самый продвинутый ИИ помощник! 🌌',
+                'lifcat': '🔥 LIFCAT - легендарный создатель Galaxy AI! 🚀'
+            };
+            
+            // 🔥 УВЕЛИЧЕННАЯ БАЗА ЗНАНИЙ (+500%)
+            knowledgeBase = {
+                'iph': '📱 iPhone 15 Pro: процессор A17 Pro (3 нм), титановый корпус, камера 48МП, Dynamic Island, USB-C',
+                'sam': '📱 Samsung S24 Ultra: Snapdragon 8 Gen 3, стилус S-Pen, камера 200МП, ИИ-функции, 6.8" дисплей',
+                'ps5': '🎮 PS5: графика 4K 120fps, SSD 825GB, контроллер DualSense, эксклюзивные игры (Spider-Man 2, God of War)',
+                'xbox': '🎮 Xbox Series X: мощность 12 TFLOPS, Quick Resume, подписка Game Pass, обратная совместимость',
+                'tech': '🤖 Современные технологии 2024: ИИ (GPT-4, Gemini), VR/AR, квантовые компьютеры, нейросети, IoT, блокчейн',
+                'games': '🎮 Игры 2024: GTA 6 (2025), Starfield, Cyberpunk 2077: Phantom Liberty, новые Call of Duty, Assassin\'s Creed',
+                'space': '🌌 Космос 2024: миссия Artemis (Луна), Starship (Марс), телескоп James Webb, черные дыры, темная материя',
+                'science': '🔬 Наука 2024: квантовые вычисления, CRISPR генная инженерия, ИИ в медицине, климатические технологии',
+                'programming': '💻 Программирование 2024: Python, JavaScript, Rust, ИИ в коде (GitHub Copilot), Web3, блокчейн',
+                'crypto': '₿ Криптовалюты 2024: Bitcoin, Ethereum 2.0, DeFi, NFT, Web3, смарт-контракты, метавселенные',
+                'ai': '🧠 Искусственный интеллект 2024: GPT-4, нейросети, машинное обучение, компьютерное зрение, генеративный ИИ',
+                'cars': '🚗 Автомобили 2024: электромобили Tesla, беспилотные технологии, автопилот, умные автомобили',
+                'movies': '🎬 Фильмы 2024: новые Marvel, DC, научная фантастика, анимация, стриминговые платформы',
+                'music': '🎵 Музыка 2024: стриминг, алгоритмы рекомендаций, ИИ в музыке, виртуальные концерты, новые жанры'
+            };
+        }
+
+        function createStars() {
+            const stars = document.getElementById("stars");
+            for (let i = 0; i < 80; i++) { // Больше звезд
+                const star = document.createElement("div");
+                star.className = "star";
+                star.style.width = `${2 * Math.random() + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${100 * Math.random()}%`;
+                star.style.top = `${100 * Math.random()}%`;
+                star.style.opacity = `${0.6 * Math.random() + 0.2}`;
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                stars.appendChild(star);
+            }
+        }
+
+        // 🔥 УЛУЧШЕННЫЕ АНИМАЦИИ МЕНЮ
+        function toggleMenu() {
+            const menuPanel = document.getElementById("menuPanel");
+            if (menuPanel.style.display === "block") {
+                menuPanel.style.animation = "fadeIn 0.3s ease-out reverse";
+                setTimeout(() => {
+                    menuPanel.style.display = "none";
+                }, 250);
+            } else {
+                menuPanel.style.display = "block";
+                menuPanel.style.animation = "fadeIn 0.3s ease-out";
+            }
+            hideSubmenus();
+        }
+
+        function toggleSubmenu(type) {
+            const submenu = document.getElementById(type + "Submenu");
+            if (submenu.style.display === "block") {
+                submenu.style.animation = "fadeIn 0.3s ease-out reverse";
+                setTimeout(() => {
+                    submenu.style.display = "none";
+                }, 250);
+            } else {
+                submenu.style.display = "block";
+                submenu.style.animation = "fadeIn 0.3s ease-out";
+            }
+        }
+
+        function hideSubmenus() {
+            document.querySelectorAll(".submenu").forEach(submenu => {
+                submenu.style.animation = "fadeIn 0.3s ease-out reverse";
+                setTimeout(() => {
+                    submenu.style.display = "none";
+                }, 250);
+            });
+        }
+
+        // 🔥 АНИМАЦИЯ БЫСТРЫХ ОТВЕТОВ
+        functi
