@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="menu-button" onclick="toggleMenu()">☰</button>
+    <div class="menu-panel" id="menuPanel">
+        <button class="menu-option active" onclick="setMode('galaxy')">🚀 Galaxy AI</button>
+        <button class="menu-option" onclick="setMode('yandex')">🔷 Yandex GPT</button>
+        <button class="menu-option" onclick="setMode('openai')">🔶 OpenAI GPT</button>
+    </div>
+
+    <button class="clear-history" onclick="clearHistory()">Очистить</button>
+    <div class="mode-indicator" id="modeIndicator">🚀 Galaxy AI</div>
+    <div class="version">v2.0</div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Galaxy AI</h1>
+            <p>Умный ИИ-помощник</p>
+        </div>
+        
+        <div class="ai-status" id="aiStatus">AI: Готов к работе</div>
+        
+        <div id="chat"></div>
+        
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Задайте вопрос ИИ..." autocomplete="off">
+            <button id="sendButton">🚀</button>
+        </div>
+    </div>
+
+    <script src="galaxy-ai.js"></script>
+</body>
+</html>
