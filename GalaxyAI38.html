@@ -194,4 +194,16 @@
                 this.updateAIStatus("Слушаю... 🎤");
             }
 
-            stopVoiceRecognition(
+            stopVoiceRecognition()  {
+                                this.isListening = false;
+                document.getElementById('voiceBtn').classList.remove('listening');
+                this.updateAIStatus("Готов к работе");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            new GalaxyAI();
+        });
+    </script>
+</body>
+</html>
