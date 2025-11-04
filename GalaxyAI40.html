@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}body{background:#000;color:#fff;min-height:100vh;overflow-x:hidden}.theme-default{background:#000}.theme-space{background:#0a0a2a}.theme-blue{background:#0f1a2a}.blur-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);z-index:999;opacity:0;visibility:hidden;transition:all 0.3s ease}.blur-overlay.active{opacity:1;visibility:visible}.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1}.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 4s infinite}@keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:0.8;transform:scale(1.1)}}.pro-badge{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:2px 8px;border-radius:12px;font-size:14px;margin-left:8px;font-weight:bold;display:inline-block}.gold-text{background:linear-gradient(135deg,#FFD700,#FFA500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:#FFD700}.top-panel{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center;padding:0 20px;z-index:100}.left-controls{display:flex;align-items:center;gap:15px}.right-controls{display:flex;align-items:center;gap:10px}.icon-btn{background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;width:45px;height:45px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s ease;font-size:18px;box-shadow:0 4px 15px rgba(102,126,234,0.3)}.icon-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,0.4)}.icon-btn.listening{background:linear-gradient(135deg,#ff6b6b,#ee5a24);animation:pulse 1.5s infinite}@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}.ai-indicator{display:flex;flex-direction:column;gap:4px}#modeIndicator{font-weight:600;font-size:16px}.ai-status{font-size:12px;color:#888}.side-panel{position:fixed;top:0;width:100%;max-width:400px;height:100vh;background:rgba(25,25,35,0.98);backdrop-filter:blur(30px);border-right:1px solid rgba(255,255,255,0.15);z-index:1000;transform:translateX(-100%);transition:transform 0.3s ease;overflow-y:auto}.menu-panel{left:auto;right:0;transform:translateX(100%);border-right:none;border-left:1px solid rgba(255,255,255,0.15)}.side-panel.show{transform:translateX(0)}.panel-header{display:flex;justify-content:space-between;align-items:center;padding:25px;border-bottom:1px solid rgba(255,255,255,0.1)}.panel-header h3{font-size:20px;font-weight:600}.main-content{margin:70px 0 100px;min-height:calc(100vh - 170px);display:flex;flex-direction:column}.header{text-align:center;padding:20px}.header h1{font-size:32px;font-weight:700;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}.header p{color:#888;font-size:14px}.messages-container{flex:1;padding:20px;max-width:800px;margin:0 auto;width:100%}.message{margin-bottom:20px;animation:messageSlide 0.3s ease}@keyframes messageSlide{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.message-content{max-width:70%;padding:15px 20px;border-radius:18px;line-height:1.5}.user-message{margin-left:auto}.user-message .message-content{background:linear-gradient(135deg,#667eea,#764ba2);border-bottom-right-radius:5px}.bot-message{margin-right:auto}.bot-message .message-content{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-bottom-left-radius:5px}.message-text{font-size:15px;word-wrap:break-word;white-space:pre-line}.message-time{font-size:11px;color:#888;margin-top:8px;text-align:right}.bot-message .message-time{text-align:left}.quick-commands{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;padding:0 20px 20px;max-width:800px;margin:0 auto;width:100%}.quick-commands.hidden{display:none}.quick-command{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 15px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all 0.3s ease;color:#fff;text-align:center}.quick-command:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px)}.command-icon{font-size:20px}.command-text{font-size:12px;font-weight:500}.input-panel{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,20,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.1);padding:20px;z-index:100}.input-container{max-width:800px;margin:0 auto;display:flex;align-items:center;gap:15px}.input-wrapper{flex:1;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:8px 15px}#userInput{flex:1;background:none;border:none;color:#fff;font-size:16px;padding:10px 0;outline:none}#userInput::placeholder{color:#888}.menu-section{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1)}.menu-section:last-child{border-bottom:none}.menu-section h4{margin-bottom:15px;font-size:16px;color:#fff}.ai-options{display:flex;flex-direction:column;gap:8px}.ai-option{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:15px;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;gap:12px;color:#fff}.ai-option:hover{background:rgba(255,255,255,0.1)}.ai-option.active{background:rgba(102,126,234,0.2);border-color:#667eea}.ai-icon{font-size:20px}.ai-info{display:flex;flex-direction:column;gap:2px}.ai-name{font-weight:600;font-size:14px}.ai-desc{font-size:12px;color:#888}.api-keys{display:flex;flex-direction:column;gap:12px}.api-input-group{display:flex;flex-direction:column;gap:6px}.api-input-group label{font-size:13px;color:#888}.api-input-group input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px}.api-input-group input::placeholder{color:#666}.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.theme-option{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.3s ease;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff}.theme-option:hover{background:rgba(255,255,255,0.1)}.theme-option.active{background:rgba(102,126,234,0.2);border-color:#667eea}.theme-preview{width:40px;height:20px;border-radius:4px;border:2px solid transparent}.default-theme{background:#000}.space-theme{background:#0a0a2a}.blue-theme{background:#0f1a2a}.theme-option.active .theme-preview{border-color:#667eea}.chats-list{padding:0 20px 20px}.chat-option{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:15px;margin:8px 0;cursor:pointer;transition:all 0.3s ease;color:#fff}.chat-option:hover{background:rgba(255,255,255,0.1)}.chat-option.active{background:rgba(102,126,234,0.2);border-color:#667eea}.chat-name{font-weight:600;font-size:14px}.chat-preview{font-size:12px;color:#888;margin-top:4px}.new-chat-btn{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:10px;padding:15px;margin:20px;color:#fff;font-size:14px;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;justify-content:center;gap:8px}.new-chat-btn:hover{transform:translateY(-2px)}@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.quick-commands{animation:slideUp 0.3s ease}@media (max-width:768px){.top-panel{padding:0 15px;height:60px}.icon-btn{width:40px;height:40px;font-size:16px}.main-content{margin:60px 0 90px}.messages-container{padding:15px}.message-content{max-width:85%;padding:12px 16px}.input-panel{padding:15px}.side-panel{max-width:100%}.quick-commands{grid-template-columns:repeat(3,1fr);padding:0 15px 15px}}@media (max-width:480px){.quick-commands{grid-template-columns:repeat(2,1fr)}.theme-options{grid-template-columns:repeat(2,1fr)}.message-content{max-width:95%;padding:10px 12px}.input-wrapper{padding:6px 12px}}
+    </style>
+</head>
+<body class="theme-default">
+    <div class="blur-overlay" id="blurOverlay"></div>
+    <div class="stars" id="stars"></div>
+    <div class="top-panel">
+        <div class="left-controls">
+            <button class="icon-btn" id="chatsBtn" title="Мои чаты"><span class="btn-icon">💬</span></button>
+            <div class="ai-indicator"><div id="modeIndicator">🚀 Galaxy AI</div><div class="ai-status" id="aiStatus">Готов к работе</div></div>
+        </div>
+        <div class="right-controls">
+            <button class="icon-btn" id="clearBtn" title="Очистить чат"><span class="btn-icon">🗑️</span></button>
+            <button class="icon-btn" id="menuBtn" title="Настройки"><span class="btn-icon">⚙️</span></button>
+        </div>
+    </div>
+    <div class="side-panel chats-panel" id="chatsPanel">
+        <div class="panel-header"><h3>Мои чаты</h3><button class="icon-btn" id="closeChatsBtn"><span class="btn-icon">✕</span></button></div>
+        <button class="new-chat-btn" id="newChatBtn"><span class="btn-icon">+</span> Новый чат</button>
+        <div class="chats-list" id="chatsList"></div>
+    </div>
+    <div class="side-panel menu-panel" id="menuPanel">
+        <div class="panel-header"><h3>Настройки AI</h3><button class="icon-btn" id="closeMenuBtn"><span class="btn-icon">✕</span></button></div>
+        <div class="menu-section"><h4>Модель ИИ</h4><div class="ai-options">
+            <button class="ai-option active" data-mode="galaxy"><span class="ai-icon">🚀</span><div class="ai-info"><span class="ai-name">Galaxy AI</span><span class="ai-desc">Умный помощник</span></div></button>
+            <button class="ai-option" data-mode="yandex"><span class="ai-icon">🌐</span><div class="ai-info"><span class="ai-name">Yandex GPT</span><span class="ai-desc">Требует API ключ</span></div></button>
+            <button class="ai-option" data-mode="gigachat"><span class="ai-icon">🤖</span><div class="ai-info"><span class="ai-name">GigaChat</span><span class="ai-desc">Требует API ключ</span></div></button>
+            <button class="ai-option" data-mode="openai"><span class="ai-icon">⚡</span><div class="ai-info"><span class="ai-name">OpenAI</span><span class="ai-desc">Требует API ключ</span></div></button>
+        </div></div>
+        <div class="menu-section"><h4>API Ключи</h4><div class="api-keys">
+            <div class="api-input-group"><label>Yandex GPT Key:</label><input type="password" id="yandexKey" placeholder="Введите API ключ"></div>
+            <button class="icon-btn" id="clearBtn" title="Очистить чат"><span class="btn-icon">🗑️</span></button>
+            <button class="icon-btn" id="menuBtn" title="Настройки"><span class="btn-icon">⚙️</span></button>
+        </div>
+    </div>
+    <div class="side-panel chats-panel" id="chatsPanel">
+        <div class="panel-header"><h3>Мои чаты</h3><button class="icon-btn" id="closeChatsBtn"><span class="btn-icon">✕</span></button></div>
+        <button class="new-chat-btn" id="newChatBtn"><span class="btn-icon">+</span> Новый чат</button>
+        <div class="chats-list" id="chatsList"></div>
+    </div>
+    <div class="side-panel menu-panel" id="menuPanel">
+        <div class="panel-header"><h3>Настройки AI</h3><button class="icon-btn" id="closeMenuBtn"><span class="btn-icon">✕</span></button></div>
+        <div class="menu-section"><h4>Модель ИИ</h4><div class="ai-options">
+            <button class="ai-option active" data-mode="galaxy"><span class="ai-icon">🚀</span><div class="ai-info"><span class="ai-name">Galaxy AI</span><span class="ai-desc">Умный помощник</span></div></button>
+            <button class="ai-option" data-mode="yandex"><span class="ai-icon">🌐</span><div class="ai-info"><span class="ai-name">Yandex GPT</span><span class="ai-desc">Требует API ключ</span></div></button>
+            <button class="ai-option" data-mode="gigachat"><span class="ai-icon">🤖</span><div class="ai-info"><span class="ai-name">GigaChat</span><span class="ai-desc">Требует API ключ</span></div></button>
+            <button class="ai-option" data-mode="openai"><span class="ai-icon">⚡</span><div class="ai-info"><span class="ai-name">OpenAI</span><span class="ai-desc">Требует API ключ</span></div></button>
+        </div></div>
+        <div class="menu-section"><h4>API Ключи</h4><div class="api-keys">
+            <div class="api-input-group"><label>Yandex GPT Key:</label><input type="password" id="yandexKey" placeholder="Введите API ключ"></div>
+            <div class="api-input-group"><label>GigaChat Key:</label><input type="password" id="gigachatKey" placeholder="Введите API ключ"></div>
+            <div class="api-input-group"><label>OpenAI Key:</label><input type="password" id="openaiKey" placeholder="Введите API ключ"></div>
+        </div></div>
+        <div class="menu-section"><h4>Тема оформления</h4><div class="theme-options">
+            <button class="theme-option active" data-theme="default"><div class="theme-preview default-theme"></div><span>По умолчанию</span></button>
+            <button class="theme-option" data-theme="space"><div class="theme-preview space-theme"></div><span>Космос</span></button>
+            <button class="theme-option" data-theme="blue"><div class="theme-preview blue-theme"></div><span>Синяя</span></button>
+        </div></div>
+    </div>
+    <div class="main-content">
+        <div class="header"><h1>Galaxy AI</h1><p>Ваш умный помощник с искусственным интеллектом</p></div>
+        <div class="messages-container" id="messagesContainer">
+            <div class="message bot-message"><div class="message-content"><div class="message-text">Привет! Я Galaxy AI - твой умный помощник. Чем могу помочь? 🚀</div><div class="message-time">Только что</div></div></div>
+        </div>
+        <div class="quick-commands hidden" id="quickCommands">
+            <button class="quick-command" data-command="Привет! Как дела?"><span class="command-icon">👋</span><span class="command-text">Привет</span></button>
+            <button class="quick-command" data-command="Расскажи шутку"><span class="command-icon">😄</span><span class="command-text">Шутка</span></button>
+            <button class="quick-command" data-command="Помоги с программированием"><span class="command-icon">💻</span><span class="command-text">Программирование</span></button>
+            <button class="quick-command" data-command="Что ты умеешь?"><span class="command-icon">🔧</span><span class="command-text">Возможности</span></button>
+            <button class="quick-command" data-command="Новости технологий"><span class="command-icon">📰</span><span class="command-text">Новости</span></button>
+        </div>
+    </div>
+    <div class="input-panel">
+        <div class="input-container">
+            <button class="icon-btn" id="quickMenuBtn" title="Быстрые команды"><span class="btn-icon">⚡</span></button>
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Введите сообщение...">
+                <button class="icon-btn" id="voiceBtn" title="Голосовой ввод"><span class="btn-icon">🎤</span></button>
+                <button class="icon-btn" id="sendBtn" title="Отправить"><span class="btn-icon">📤</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GalaxyAI {
+            constructor() {
+                this.currentMode = 'galaxy';
+                this.currentTheme = 'default';
+                this.currentChatId = 'chat_1';
+                this.chats = {};
+                this.apiKeys = { yandex: '', gigachat: '', openai: '' };
+                this.isQuickMenuOpen = false;
+                this.isListening = false;
+                this.recognition = null;
+                this.isProMode = false;
+                this.init();
+            }
+
+            init() {
+                this.createStars();
+                this.setupEventListeners();
+                this.setupVoiceRecognition();
+                this.loadChats();
+                this.loadSettings();
+                this.updateAIStatus("Готов к работе");
+                if (this.isProMode) this.activateProMode();
+            }
+
+            createStars() {
+                const starsContainer = document.getElementById('stars');
+                starsContainer.innerHTML = '';
+                for (let i = 0; i < 150; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = (Math.random() * 3 + 1) + 'px';
+                    star.style.height = star.style.width;
+                    star.style.animationDelay = (Math.random() * 4) + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('chatsBtn').addEventListener('click', () => this.togglePanel('chatsPanel'));
+                document.getElementById('menuBtn').addEventListener('click', () => this.togglePanel('menuPanel'));
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearCurrentChat());
+                document.getElementById('closeChatsBtn').addEventListener('click', () => this.hidePanels());
+                document.getElementById('closeMenuBtn').addEventListener('click', () => this.hidePanels());
+                document.getElementById('newChatBtn').addEventListener('click', () => this.createNewChat());
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                document.getElementById('userInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+                document.getElementById('quickMenuBtn').addEventListener('click', () => this.toggleQuickCommands());
+                document.querySelectorAll('.quick-command').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.getElementById('userInput').value = btn.getAttribute('data-command');
+                        this.sendMessage();
+                    });
+                });
+                document.getElementById('voiceBtn').addEventListener('click', () => this.toggleVoiceRecognition());
+                document.querySelectorAll('.ai-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        this.selectAIMode(option.getAttribute('data-mode'));
+                    });
+                });
+                document.querySelectorAll('.theme-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        this.selectTheme(option.getAttribute('data-theme'));
+                    });
+                });
+                document.getElementById('yandexKey').addEventListener('input', (e) => {
+                    this.apiKeys.yandex = e.target.value;
+                    this.saveSettings();
+                });
+                document.getElementById('gigachatKey').addEventListener('input', (e) => {
+                    this.apiKeys.gigachat = e.target.value;
+                    this.saveSettings();
+                });
+                document.getElementById('openaiKey').value = this.apiKeys.openai || '';
+                }
+            }
+
+            saveSettings() {
+                const settings = {
+                    currentMode: this.currentMode,
+                    currentTheme: this.currentTheme,
+                    apiKeys: this.apiKeys,
+                    isProMode: this.isProMode
+                };
+                localStorage.setItem('galaxyAISettings', JSON.stringify(settings));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            new GalaxyAI();
+        });
+    </script>
+</body>
+</html>
