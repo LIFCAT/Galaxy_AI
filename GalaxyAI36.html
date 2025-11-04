@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .theme-default { background: #000; }
+        .theme-space { background: #0a0a2a; }
+        .theme-blue { background: #0f1a2a; }
+
+        .blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .blur-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .top-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .left-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: #fff;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .ai-indicator {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        #modeIndicator {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .ai-status {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .side-panel {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: rgba(25, 25, 35, 0.98);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .menu-panel {
+            left: auto;
+            right: 0;
+            transform: translateX(100%);
+            border-right: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .side-panel.show {
+            transform: translateX(0);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin: 70px 0 100px;
+            min-height: calc(100vh - 170px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message {
+            margin-bottom: 20px;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            margin-left: auto;
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .bot-message {
+            margin-right: auto;
+        }
+
+        .bot-message .message-content {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 8px 15px;
+        }
+
+        #userInput {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            padding: 10px 0;
+            outline: none;
+        }
+
+        .menu-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ai-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+        }
+
+        .ai-option.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .theme-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+        }
+
+        .theme-option.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .chats-list {
+            padding: 0 20px 20px;
+        }
+
+        .chat-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 8px 0;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .new-chat-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body class="theme-default">
+    <div class="blur-overlay" id="blurOverlay"></div>
+    <div class="stars" id="stars"></div>
+    
+    <div class="top-panel">
+        <div class="left-controls">
+            <button class="icon-btn" id="chatsBtn" title="Мои чаты">💬</button>
+            <div class="ai-indicator">
+                <div id="modeIndicator">🚀 Galaxy AI</div>
+                <div class="ai-status" id="aiStatus">Готов к работе</div>
+            </div>
+        </div>
+        <div class="right-controls">
+            <button class="icon-btn" id="clearBtn" title="Очистить чат">🗑️</button>
+            <button class="icon-btn" id="menuBtn" title="Настройки">⚙️</button>
+        </div>
+    </div>
+
+    <div class="side-panel chats-panel" id="chatsPanel">
+        <div class="panel-header">
+            <h3>Мои чаты</h3>
+            <button class="icon-btn" id="closeChatsBtn">✕</button>
+        </div>
+        <button class="new-chat-btn" id="newChatBtn">+ Новый чат</button>
+        <div class="chats-list" id="chatsList"></div>
+    </div>
+
+    <div class="side-panel menu-panel" id="menuPanel">
+        <div class="panel-header">
+            <h3>Настройки AI</h3>
+            <button class="icon-btn" id="closeMenuBtn">✕</button>
+        </div>
+        
+        <div class="menu-section">
+            <h4>Модель ИИ</h4>
+            <div class="ai-options">
+                <button class="ai-option active" data-mode="galaxy">
+                    <span>🚀</span>
+                    <div>
+                        <div>Galaxy AI</div>
+                        <div>Умный помощник</div>
+                    </div>
+                </button>
+                <button class="ai-option" data-mode="yandex">
+                    <span>🌐</span>
+                    <div>
+                        <div>Yandex GPT</div>
+                        <div>Требует API ключ</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h4>Тема оформления</h4>
+            <div class="theme-options">
+                <button class="theme-option active" data-theme="default">
+                    <div style="background:#000;width:40px;height:20px;border-radius:4px"></div>
+                    <span>По умолчанию</span>
+                </button>
+                <button class="theme-option" data-theme="space">
+                    <div style="background:#0a0a2a;width:40px;height:20px;border-radius:4px"></div>
+                    <span>Космос</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Galaxy AI</h1>
+            <p>Ваш умный помощник с искусственным интеллектом</p>
+        </div>
+
+        <div class="messages-container" id="messagesContainer">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <div>Привет! Я Galaxy AI - твой умный помощник. Чем могу помочь? 🚀</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-panel">
+        <div class="input-container">
+            <button class="icon-btn" id="quickMenuBtn" title="Быстрые команды">⚡</button>
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Введите сообщение...">
+                <button class="icon-btn" id="voiceBtn" title="Голосовой ввод">🎤</button>
+                <button class="icon-btn" id="sendBtn" title="Отправить">📤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GalaxyAI {
+            constructor() {
+                this.currentMode = 'galaxy';
+                this.currentTheme = 'default';
+                this.currentChatId = 'chat_1';
+                this.chats = {};
+                this.init();
+            }
+
+            init() {
+                this.createStars();
+                this.setupEventListeners();
+                this.loadChats();
+                this.updateAIStatus("Готов к работе");
+            }
+
+            createStars() {
+                const starsContainer = document.getElementById('stars');
+                for (let i = 0; i < 100; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = (Math.random() * 2 + 1) + 'px';
+                    star.style.height = star.style.width;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('chatsBtn').addEventListener('click', () => this.togglePanel('chatsPanel'));
+                document.getElementById('menuBtn').addEventListener('click', () => this.togglePanel('menuPanel'));
+                document.getElementById('closeChatsBtn').addEventListener('click', () => this.hidePanels());
+                document.getElementById('closeMenuBtn').addEventListener('click', () => this.hidePanels());
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                document.getElementById('userInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+            }
+
+            togglePanel(panelId) {
+                const panel = document.getElementById(panelId);
+                const overlay = document.getElementById('blurOverlay');
+                panel.classList.toggle('show');
+                overlay.classList.toggle('active');
+            }
+
+            hidePanels() {
+                document.querySelectorAll('.side-panel').forEach(panel => panel.classList.remove('show'));
+                document.getElementById('blurOverlay').classList.remove('active');
+            }
+
+            loadChats() {
+                this.chats = {
+                    'chat_1': {
+                        id: 'chat_1',
+                        name: 'Основной чат',
+                        messages: [{
+                            sender: 'bot',
+                            text: 'Привет! Я Galaxy AI - твой умный помощник. Чем могу помочь? 🚀',
+                            time: new Date().toLocaleTimeString()
+                        }]
+                    }
+                };
+            }
+
+            sendMessage() {
+                const input = document.getElementById('userInput');
+                const message = input.value.trim();
+                if (!message) return;
+
+                this.addMessage('user', message);
+                input.value = '';
+
+                setTimeout(() => {
+                    const response = this.generateAIResponse(message);
+                    this.addMessage('bot', response);
+                }, 1000);
+            }
+
+            addMessage(sender, text) {
+                const messagesContainer = document.getElementById('messagesContainer');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ' + sender + '-message';
+                messageDiv.innerHTML = '<div class="message-content"><div>' + text + '</div></div>';
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            generateAIResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                if (lowerMessage.includes('привет')) return "Привет! 🚀 Рад тебя видеть!";
+                if (lowerMessage.includes('как дела')) return "Отлично! Готов помогать тебе!";
+                if (lowerMessage.includes('шутка')) return "🤣 Почему программист мёрзнет? Windows открыт!";
+                return "Интересно! Расскажи подробнее? 🤔";
+            }
+
+            updateAIStatus(status) {
+                document.getElementById('aiStatus').textContent = status;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            new GalaxyAI();
+        });
+    </script>
+</body>
+</html>
